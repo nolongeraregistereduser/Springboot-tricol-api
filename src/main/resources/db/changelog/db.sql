@@ -3,10 +3,10 @@
 -- changeset tricol:1
 CREATE TABLE suppliers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    company_name VARCHAR(150) NOT NULL,
+    raison_sociale VARCHAR(150) NOT NULL,
     address TEXT,
     city VARCHAR(100),
-    tax_id VARCHAR(50),
+    ice VARCHAR(50),
     contact_person VARCHAR(100),
     email VARCHAR(120),
     phone VARCHAR(50),
@@ -34,7 +34,6 @@ CREATE TABLE products (
     current_stock DECIMAL(12,3) DEFAULT 0,
     reorder_point DECIMAL(12,3) DEFAULT 0,
     unit_of_measure VARCHAR(50),
-    minimum_threshold DECIMAL(12,3) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
