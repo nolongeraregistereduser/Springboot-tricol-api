@@ -34,7 +34,6 @@ CREATE TABLE products (
     current_stock DECIMAL(12,3) DEFAULT 0,
     reorder_point DECIMAL(12,3) DEFAULT 0,
     unit_of_measure VARCHAR(50),
-    minimum_threshold DECIMAL(12,3) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
