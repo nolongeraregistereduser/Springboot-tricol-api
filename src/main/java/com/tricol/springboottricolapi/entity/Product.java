@@ -11,6 +11,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -51,10 +53,6 @@ public class Product {
     @Column(name = "unit_of_measure", length = 50)
     private String unitOfMeasure;
 
-    @PositiveOrZero(message = "Minimum threshold cannot be negative")
-    @Column(name = "minimum_threshold", precision = 12, scale = 3)
-    private BigDecimal minimumThreshold = BigDecimal.ZERO;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -62,6 +60,19 @@ public class Product {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // Relationships with other entities
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<SupplierOrderLine> supplierOrderLines = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<StockBatch> stockBatches = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<StockMovement> stockMovements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
 
     // Constructors
     public Product() {
@@ -146,14 +157,6 @@ public class Product {
         this.unitOfMeasure = unitOfMeasure;
     }
 
-    public BigDecimal getMinimumThreshold() {
-        return minimumThreshold;
-    }
-
-    public void setMinimumThreshold(BigDecimal minimumThreshold) {
-        this.minimumThreshold = minimumThreshold;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -168,6 +171,38 @@ public class Product {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<SupplierOrderLine> getSupplierOrderLines() {
+        return supplierOrderLines;
+    }
+
+    public void setSupplierOrderLines(List<SupplierOrderLine> supplierOrderLines) {
+        this.supplierOrderLines = supplierOrderLines;
+    }
+
+    public List<StockBatch> getStockBatches() {
+        return stockBatches;
+    }
+
+    public void setStockBatches(List<StockBatch> stockBatches) {
+        this.stockBatches = stockBatches;
+    }
+
+    public List<StockMovement> getStockMovements() {
+        return stockMovements;
+    }
+
+    public void setStockMovements(List<StockMovement> stockMovements) {
+        this.stockMovements = stockMovements;
+    }
+
+    public List<DeliveryNoteLine> getDeliveryNoteLines() {
+        return deliveryNoteLines;
+    }
+
+    public void setDeliveryNoteLines(List<DeliveryNoteLine> deliveryNoteLines) {
+        this.deliveryNoteLines = deliveryNoteLines;
     }
 
     @Override
