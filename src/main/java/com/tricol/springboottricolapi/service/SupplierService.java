@@ -7,29 +7,30 @@ import com.tricol.springboottricolapi.exception.ResourceNotFoundException;
 import com.tricol.springboottricolapi.mapper.SupplierMapper;
 import com.tricol.springboottricolapi.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-
 public class SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
 
-   
-    @Transactional(readOnly = true)
-    public Page<SupplierResponseDTO> getAllSuppliers(Pageable pageable) {
-        return supplierRepository.findAll(pageable)
-                .map(supplierMapper::toResponseDTO);
-    }
 
+    @Transactional(readOnly = true)
+    public List<SupplierResponseDTO> getAllSuppliers() {
+        return supplierRepository.findAll()
+                .stream()
+                .map(supplierMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
     
+
     @Transactional(readOnly = true)
     public SupplierResponseDTO getSupplierById(Long id) {
         Supplier supplier = supplierRepository.findById(id)
@@ -44,7 +45,7 @@ public class SupplierService {
         return supplierMapper.toResponseDTO(savedSupplier);
     }
 
-    
+
     public SupplierResponseDTO updateSupplier(Long id, SupplierRequestDTO requestDTO) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", id));
@@ -60,19 +61,5 @@ public class SupplierService {
             throw new ResourceNotFoundException("Supplier", id);
         }
         supplierRepository.deleteById(id);
-    }
-
-   
-    @Transactional(readOnly = true)
-    public Page<SupplierResponseDTO> searchSuppliers(String keyword, Pageable pageable) {
-        return supplierRepository.searchSuppliers(keyword, pageable)
-                .map(supplierMapper::toResponseDTO);
-    }
-
-    
-    @Transactional(readOnly = true)
-    public Page<SupplierResponseDTO> getSuppliersByCity(String city, Pageable pageable) {
-        return supplierRepository.findByCityContainingIgnoreCase(city, pageable)
-                .map(supplierMapper::toResponseDTO);
     }
 }
