@@ -1,5 +1,6 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.tricol.springboottricolapi.entity.enums.MovementType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -29,8 +30,12 @@ public class StockMovement {
     @JoinColumn(name = "batch_id", foreignKey = @ForeignKey(name = "FK_MOVEMENT_BATCH"))
     private StockBatch batch;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_note_id", foreignKey = @ForeignKey(name = "FK_MOVEMENT_DELIVERY_NOTE"))
+    private DeliveryNote deliveryNote;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "movement_type", length = 10)
+    @Column(name = "movement_type", length = 10, nullable = false)
     private MovementType movementType;
 
     @NotNull(message = "Quantity is mandatory")
@@ -38,22 +43,16 @@ public class StockMovement {
     @Column(name = "quantity", nullable = false, precision = 12, scale = 3)
     private BigDecimal quantity;
 
+    @Column(name = "unit_price", precision = 12, scale = 3)
+    private BigDecimal unitPrice;
+
     @NotNull(message = "Movement date is mandatory")
     @Column(name = "movement_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime movementDate = LocalDateTime.now();
 
-    @Column(name = "source", length = 100)
-    private String source;
-
-    @Column(name = "source_reference")
-    private Long sourceReference;
+    @Column(name = "reference", length = 100)
+    private String reference;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
-
-    // Enum for movement type
-    public enum MovementType {
-        IN, OUT
-    }
 }
-

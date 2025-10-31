@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,6 +22,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "products")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
 
     @Id
@@ -42,16 +46,18 @@ public class Product {
     @Column(name = "unit_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal unitPrice;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "FK_PRODUCT_CATEGORY"))
-    private Category category;
+    @NotBlank(message = "Category is mandatory")
+    @Column(name = "category", nullable = false, length = 100)
+    private String category;
 
     @PositiveOrZero(message = "Current stock cannot be negative")
     @Column(name = "current_stock", precision = 12, scale = 3)
+    @Builder.Default
     private BigDecimal currentStock = BigDecimal.ZERO;
 
     @PositiveOrZero(message = "Reorder point cannot be negative")
     @Column(name = "reorder_point", precision = 12, scale = 3)
+    @Builder.Default
     private BigDecimal reorderPoint = BigDecimal.ZERO;
 
     @Column(name = "unit_of_measure", length = 50)
@@ -67,156 +73,23 @@ public class Product {
 
     // Relationships with other entities
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<SupplierOrderLine> supplierOrderLines = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StockBatch> stockBatches = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StockMovement> stockMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
 
-    // Constructors
-    public Product() {
-    }
-
-    public Product(String reference, String name, BigDecimal unitPrice) {
-        this.reference = reference;
-        this.name = name;
-        this.unitPrice = unitPrice;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public BigDecimal getCurrentStock() {
-        return currentStock;
-    }
-
-    public void setCurrentStock(BigDecimal currentStock) {
-        this.currentStock = currentStock;
-    }
-
-    public BigDecimal getReorderPoint() {
-        return reorderPoint;
-    }
-
-    public void setReorderPoint(BigDecimal reorderPoint) {
-        this.reorderPoint = reorderPoint;
-    }
-
-    public String getUnitOfMeasure() {
-        return unitOfMeasure;
-    }
-
-    public void setUnitOfMeasure(String unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<SupplierOrderLine> getSupplierOrderLines() {
-        return supplierOrderLines;
-    }
-
-    public void setSupplierOrderLines(List<SupplierOrderLine> supplierOrderLines) {
-        this.supplierOrderLines = supplierOrderLines;
-    }
-
-    public List<StockBatch> getStockBatches() {
-        return stockBatches;
-    }
-
-    public void setStockBatches(List<StockBatch> stockBatches) {
-        this.stockBatches = stockBatches;
-    }
-
-    public List<StockMovement> getStockMovements() {
-        return stockMovements;
-    }
-
-    public void setStockMovements(List<StockMovement> stockMovements) {
-        this.stockMovements = stockMovements;
-    }
-
-    public List<DeliveryNoteLine> getDeliveryNoteLines() {
-        return deliveryNoteLines;
-    }
-
-    public void setDeliveryNoteLines(List<DeliveryNoteLine> deliveryNoteLines) {
-        this.deliveryNoteLines = deliveryNoteLines;
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", reference='" + reference + '\'' +
-                ", name='" + name + '\'' +
-                ", unitPrice=" + unitPrice +
-                ", currentStock=" + currentStock +
-                '}';
+    // Business logic method
+    public boolean isBelowReorderPoint() {
+        return currentStock.compareTo(reorderPoint) <= 0;
     }
 }

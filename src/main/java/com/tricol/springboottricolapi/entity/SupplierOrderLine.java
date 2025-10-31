@@ -38,13 +38,25 @@ public class SupplierOrderLine {
     @Column(name = "unit_purchase_price", nullable = false, precision = 12, scale = 3)
     private BigDecimal unitPurchasePrice;
 
-    // line_total is a generated column in DB, so we calculate it here
-    @Transient
+    @Column(name = "subtotal", precision = 14, scale = 2)
+    private BigDecimal subtotal;
+
+    @PrePersist
+    @PreUpdate
+    protected void calculateSubtotal() {
+        if (quantity != null && unitPurchasePrice != null) {
+            subtotal = quantity.multiply(unitPurchasePrice);
+        }
+    }
+
+    // Helper method for business logic
     public BigDecimal getLineTotal() {
+        if (subtotal != null) {
+            return subtotal;
+        }
         if (quantity != null && unitPurchasePrice != null) {
             return quantity.multiply(unitPurchasePrice);
         }
         return BigDecimal.ZERO;
     }
 }
-

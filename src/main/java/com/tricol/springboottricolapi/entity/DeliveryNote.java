@@ -1,13 +1,18 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.tricol.springboottricolapi.entity.enums.ExitOrderStatus;
+import com.tricol.springboottricolapi.entity.enums.ExitReason;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,27 +31,38 @@ public class DeliveryNote {
     @Column(name = "note_number", unique = true, nullable = false, length = 50)
     private String noteNumber;
 
-    @NotNull(message = "Delivery date is mandatory")
-    @Column(name = "delivery_date", nullable = false)
-    private LocalDate deliveryDate;
+    @NotNull(message = "Exit date is mandatory")
+    @Column(name = "exit_date", nullable = false)
+    private LocalDate exitDate;
 
-    @NotBlank(message = "Receiving department is mandatory")
-    @Column(name = "receiving_department", nullable = false, length = 100)
-    private String receivingDepartment;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_reason", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'PRODUCTION'")
-    private DeliveryReason deliveryReason = DeliveryReason.PRODUCTION;
+    @NotBlank(message = "Workshop is mandatory")
+    @Column(name = "workshop", nullable = false, length = 100)
+    private String workshop;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'DRAFT'")
-    private DeliveryStatus status = DeliveryStatus.DRAFT;
+    @Column(name = "exit_reason", length = 20, nullable = false)
+    private ExitReason exitReason = ExitReason.PRODUCTION;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    private ExitOrderStatus status = ExitOrderStatus.BROUILLON;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @OneToMany(mappedBy = "deliveryNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
+
+    @OneToMany(mappedBy = "deliveryNote", cascade = CascadeType.ALL)
+    private List<StockMovement> stockMovements = new ArrayList<>();
 
     // Helper methods
     public void addDeliveryNoteLine(DeliveryNoteLine line) {
@@ -58,14 +74,4 @@ public class DeliveryNote {
         deliveryNoteLines.remove(line);
         line.setDeliveryNote(null);
     }
-
-    // Enums
-    public enum DeliveryReason {
-        PRODUCTION, MAINTENANCE, OTHER
-    }
-
-    public enum DeliveryStatus {
-        DRAFT, APPROVED, CANCELLED
-    }
 }
-

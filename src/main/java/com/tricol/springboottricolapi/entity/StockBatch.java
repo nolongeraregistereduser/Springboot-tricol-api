@@ -1,5 +1,6 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.tricol.springboottricolapi.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,5 +59,5 @@ public class StockBatch {
 
     @OneToMany(mappedBy = "batch", cascade = CascadeType.ALL)
     private List<StockMovement> stockMovements = new ArrayList<>();
-}
 
+}
