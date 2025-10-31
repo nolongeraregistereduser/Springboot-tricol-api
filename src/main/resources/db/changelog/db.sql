@@ -1,6 +1,8 @@
 --liquibase formatted sql
 
 -- changeset tricol:1
+-- author ilyas
+
 CREATE TABLE suppliers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     raison_sociale VARCHAR(150) NOT NULL,
