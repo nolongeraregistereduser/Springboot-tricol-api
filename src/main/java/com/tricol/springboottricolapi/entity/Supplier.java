@@ -41,7 +41,7 @@ public class Supplier {
     @Column(name="email", length =120)
     private String email;
 
-     @Column(name = "phone", length = 50)
+    @Column(name = "phone", length = 50)
     private String phone;
 
     @CreationTimestamp
