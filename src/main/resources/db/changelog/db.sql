@@ -1,7 +1,6 @@
 --liquibase formatted sql
 
 -- changeset tricol:1
--- author ilyas
 
 CREATE TABLE suppliers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -125,3 +124,10 @@ CREATE TABLE delivery_note_lines (
     FOREIGN KEY (delivery_note_id) REFERENCES delivery_notes(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+
+-- changeset tricol:10
+-- Fix: Replace category_id with category string field
+ALTER TABLE products DROP FOREIGN KEY products_ibfk_1;
+ALTER TABLE products DROP COLUMN category_id;
+ALTER TABLE products ADD COLUMN category VARCHAR(100) NOT NULL DEFAULT 'General';

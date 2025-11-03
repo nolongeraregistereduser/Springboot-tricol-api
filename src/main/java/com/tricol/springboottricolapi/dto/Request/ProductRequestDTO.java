@@ -1,9 +1,9 @@
 package com.tricol.springboottricolapi.dto.Request;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ProductRequestDTO {
 
     @NotBlank(message = "Reference is mandatory")
@@ -23,7 +22,6 @@ public class ProductRequestDTO {
     @NotBlank(message = "Name is mandatory")
     private String name;
 
-    @NotBlank
     private String description;
 
     @NotNull(message = "Unit price is mandatory")
@@ -33,6 +31,9 @@ public class ProductRequestDTO {
     @NotBlank(message = "Category is mandatory")
     private String category;
 
+    @PositiveOrZero(message = "Reorder point cannot be negative")
+    private BigDecimal reorderPoint;
 
-
+    @NotBlank(message = "Unit of measure is mandatory")
+    private String unitOfMeasure;
 }
