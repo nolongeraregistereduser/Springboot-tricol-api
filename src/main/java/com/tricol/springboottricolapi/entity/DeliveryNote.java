@@ -1,5 +1,6 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tricol.springboottricolapi.entity.enums.ExitOrderStatus;
 import com.tricol.springboottricolapi.entity.enums.ExitReason;
 import jakarta.persistence.*;
@@ -59,10 +60,8 @@ public class DeliveryNote {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "deliveryNote", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
-
-    @OneToMany(mappedBy = "deliveryNote", cascade = CascadeType.ALL)
-    private List<StockMovement> stockMovements = new ArrayList<>();
 
     // Helper methods
     public void addDeliveryNoteLine(DeliveryNoteLine line) {

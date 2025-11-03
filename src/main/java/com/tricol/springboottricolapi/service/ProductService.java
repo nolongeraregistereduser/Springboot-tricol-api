@@ -1,3 +1,4 @@
+// java
 package com.tricol.springboottricolapi.service;
 
 import com.tricol.springboottricolapi.dto.Request.ProductRequestDTO;
@@ -9,6 +10,7 @@ import com.tricol.springboottricolapi.exception.ResourceNotFoundException;
 import com.tricol.springboottricolapi.mapper.ProductMapper;
 import com.tricol.springboottricolapi.repository.ProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,7 +41,6 @@ public class ProductService {
     }
 
     public ProductResponseDTO createProduct(ProductRequestDTO requestDTO) {
-        // Check if product with same reference already exists
         if (productRepository.existsByReference(requestDTO.getReference())) {
             throw new DuplicateRessourceException("Product", "reference", requestDTO.getReference());
         }
@@ -53,7 +54,6 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Check if reference is being changed to an existing reference
         if (!existingProduct.getReference().equals(requestDTO.getReference())
                 && productRepository.existsByReference(requestDTO.getReference())) {
             throw new DuplicateRessourceException("Product", "reference", requestDTO.getReference());
@@ -67,7 +67,14 @@ public class ProductService {
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-        productRepository.delete(product);
+        try {
+            productRepository.delete(product);
+            productRepository.flush(); // force DB constraints check now
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalStateException(
+                    "Cannot delete product with id " + id + " because it is referenced by other records. Remove dependent records first.",
+                    ex);
+        }
     }
 
     public ProductStockDTO getProductStock(Long id) {

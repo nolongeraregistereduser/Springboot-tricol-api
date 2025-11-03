@@ -1,5 +1,6 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -21,11 +22,13 @@ public class SupplierOrderLine {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "FK_ORDERLINE_ORDER"))
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
     private SupplierOrder supplierOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", foreignKey = @ForeignKey(name = "FK_ORDERLINE_PRODUCT"))
+    @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
 
     @NotNull(message = "Quantity is mandatory")
@@ -38,21 +41,14 @@ public class SupplierOrderLine {
     @Column(name = "unit_purchase_price", nullable = false, precision = 12, scale = 3)
     private BigDecimal unitPurchasePrice;
 
-    @Column(name = "subtotal", precision = 14, scale = 2)
-    private BigDecimal subtotal;
-
-    @PrePersist
-    @PreUpdate
-    protected void calculateSubtotal() {
-        if (quantity != null && unitPurchasePrice != null) {
-            subtotal = quantity.multiply(unitPurchasePrice);
-        }
-    }
+    // This is a generated column in the database (line_total = quantity * unit_purchase_price)
+    @Column(name = "line_total", precision = 14, scale = 2, insertable = false, updatable = false)
+    private BigDecimal lineTotal;
 
     // Helper method for business logic
     public BigDecimal getLineTotal() {
-        if (subtotal != null) {
-            return subtotal;
+        if (lineTotal != null) {
+            return lineTotal;
         }
         if (quantity != null && unitPurchasePrice != null) {
             return quantity.multiply(unitPurchasePrice);

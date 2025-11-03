@@ -1,6 +1,6 @@
 package com.tricol.springboottricolapi.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -74,22 +74,27 @@ public class Product {
     // Relationships with other entities
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<SupplierOrderLine> supplierOrderLines = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<StockBatch> stockBatches = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<StockMovement> stockMovements = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
 
     // Business logic method
     public boolean isBelowReorderPoint() {
+        if (currentStock == null || reorderPoint == null) return false;
         return currentStock.compareTo(reorderPoint) <= 0;
     }
 }
