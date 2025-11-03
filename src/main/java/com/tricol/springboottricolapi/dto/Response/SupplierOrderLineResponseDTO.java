@@ -11,12 +11,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductStockDTO {
+public class SupplierOrderLineResponseDTO {
+    private Long id;
     private Long productId;
-    private String reference;
-    private String name;
-    private BigDecimal currentStock;
-    private BigDecimal reorderPoint;
-    private String unitOfMeasure;
-    private Boolean isBelowReorderPoint;
+    private String productReference;
+    private String productName;
+    private BigDecimal quantity;
+    private BigDecimal unitPrice;
+    private BigDecimal totalPrice;
 }
+

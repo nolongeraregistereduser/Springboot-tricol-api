@@ -3,7 +3,6 @@ package com.tricol.springboottricolapi.exception;
 
 import com.tricol.springboottricolapi.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestControllerAdvice
@@ -98,10 +99,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        val errors = ex.getBindingResult().getFieldErrors()
+        List<String> errors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .toList();
+                .collect(Collectors.toList());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDate.now())

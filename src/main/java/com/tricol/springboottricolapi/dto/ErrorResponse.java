@@ -6,14 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-
 public class ErrorResponse {
 
     private LocalDate timestamp;
@@ -21,5 +18,4 @@ public class ErrorResponse {
     private String error;
     private String message;
     private String path;
-
 }

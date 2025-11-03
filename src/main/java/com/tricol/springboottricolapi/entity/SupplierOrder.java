@@ -1,12 +1,11 @@
 package com.tricol.springboottricolapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tricol.springboottricolapi.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,20 +17,23 @@ import java.util.List;
 
 @Entity
 @Table(name = "supplier_orders")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SupplierOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "order_number", unique = true, nullable = false, length = 50)
+    @Column(name = "order_number", unique = true, length = 50)
     private String orderNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id", foreignKey = @ForeignKey(name = "FK_ORDER_SUPPLIER"))
+    @JoinColumn(name = "supplier_id")
+    @JsonIgnore
     private Supplier supplier;
 
     @NotNull(message = "Order date is mandatory")
@@ -40,14 +42,16 @@ public class SupplierOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
+    @Builder.Default
     private OrderStatus status = OrderStatus.EN_ATTENTE;
 
     @PositiveOrZero(message = "Total amount cannot be negative")
     @Column(name = "total_amount", precision = 14, scale = 2)
+    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    @Column(name = "received_date")
-    private LocalDate receivedDate;
+    @Column(name = "reception_date")
+    private LocalDate receptionDate;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
@@ -61,9 +65,13 @@ public class SupplierOrder {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "supplierOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @JsonIgnore
     private List<SupplierOrderLine> orderLines = new ArrayList<>();
 
     @OneToMany(mappedBy = "supplierOrder", cascade = CascadeType.ALL)
+    @Builder.Default
+    @JsonIgnore
     private List<StockBatch> stockBatches = new ArrayList<>();
 
     // Business methods
