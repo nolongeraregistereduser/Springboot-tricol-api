@@ -87,9 +87,9 @@ public class SupplierOrderService {
         SupplierOrder order = SupplierOrder.builder()
                 .orderNumber(generateOrderNumber())
                 .supplier(supplier)
-                .orderDate(requestDTO.getOrderDate())
+                .orderDate(LocalDate.now())
                 .status(OrderStatus.EN_ATTENTE)
-                .comments(requestDTO.getComments())
+                .comments(requestDTO.getNotes())
                 .build();
 
         // Add order lines
@@ -99,7 +99,7 @@ public class SupplierOrderService {
 
             SupplierOrderLine line = SupplierOrderLine.builder()
                     .product(product)
-                    .quantity(lineDTO.getQuantity())
+                    .quantity(lineDTO.getQuantityOrdered())
                     .unitPurchasePrice(lineDTO.getUnitPurchasePrice())
                     .build();
 
@@ -129,9 +129,8 @@ public class SupplierOrderService {
             order.setSupplier(supplier);
         }
 
-        // Update basic fields
-        order.setOrderDate(requestDTO.getOrderDate());
-        order.setComments(requestDTO.getComments());
+        // Update basic fields (keep original order date, only update notes)
+        order.setComments(requestDTO.getNotes());
 
         // Clear and rebuild order lines
         order.getOrderLines().clear();
@@ -142,7 +141,7 @@ public class SupplierOrderService {
 
             SupplierOrderLine line = SupplierOrderLine.builder()
                     .product(product)
-                    .quantity(lineDTO.getQuantity())
+                    .quantity(lineDTO.getQuantityOrdered())
                     .unitPurchasePrice(lineDTO.getUnitPurchasePrice())
                     .build();
 

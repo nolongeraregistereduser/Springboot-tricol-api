@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class SupplierOrderController {
     public SupplierOrderController(SupplierOrderService orderService) {
         this.orderService = orderService;
     }
+
 
     @GetMapping
     public ResponseEntity<List<SupplierOrderResponseDTO>> getAllOrders(
@@ -43,23 +45,27 @@ public class SupplierOrderController {
         return ResponseEntity.ok(orders);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<SupplierOrderResponseDTO> getOrderById(@PathVariable Long id) {
         SupplierOrderResponseDTO order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/fournisseur/{supplierId}")
-    public ResponseEntity<List<SupplierOrderResponseDTO>> getOrdersBySupplier(@PathVariable Long supplierId) {
-        List<SupplierOrderResponseDTO> orders = orderService.getOrdersBySupplierId(supplierId);
+
+    @GetMapping("/fournisseur/{id}")
+    public ResponseEntity<List<SupplierOrderResponseDTO>> getOrdersBySupplierId(@PathVariable Long id) {
+        List<SupplierOrderResponseDTO> orders = orderService.getOrdersBySupplierId(id);
         return ResponseEntity.ok(orders);
     }
+
 
     @PostMapping
     public ResponseEntity<SupplierOrderResponseDTO> createOrder(@Valid @RequestBody SupplierOrderRequestDTO requestDTO) {
         SupplierOrderResponseDTO createdOrder = orderService.createOrder(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<SupplierOrderResponseDTO> updateOrder(
@@ -69,20 +75,16 @@ public class SupplierOrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
-        return ResponseEntity.ok(Map.of(
-                "message", "Order deleted successfully",
-                "id", id.toString()
-        ));
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Order deleted successfully");
+        response.put("orderId", id.toString());
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}/annuler")
-    public ResponseEntity<SupplierOrderResponseDTO> cancelOrder(@PathVariable Long id) {
-        SupplierOrderResponseDTO cancelledOrder = orderService.cancelOrder(id);
-        return ResponseEntity.ok(cancelledOrder);
-    }
 
     @PutMapping("/{id}/valider")
     public ResponseEntity<SupplierOrderResponseDTO> validateOrder(@PathVariable Long id) {
@@ -90,9 +92,18 @@ public class SupplierOrderController {
         return ResponseEntity.ok(validatedOrder);
     }
 
+
+    @PutMapping("/{id}/annuler")
+    public ResponseEntity<SupplierOrderResponseDTO> cancelOrder(@PathVariable Long id) {
+        SupplierOrderResponseDTO cancelledOrder = orderService.cancelOrder(id);
+        return ResponseEntity.ok(cancelledOrder);
+    }
+
+
     @PutMapping("/{id}/reception")
     public ResponseEntity<SupplierOrderResponseDTO> receiveOrder(@PathVariable Long id) {
         SupplierOrderResponseDTO receivedOrder = orderService.receiveOrder(id);
         return ResponseEntity.ok(receivedOrder);
     }
 }
+

@@ -1,8 +1,9 @@
 package com.tricol.springboottricolapi.dto.Request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,17 +12,17 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SupplierOrderLineRequestDTO {
 
-    @NotNull(message = "Product ID is mandatory")
+    @NotNull(message = "Product ID is required")
     private Long productId;
 
-    @NotNull(message = "Quantity is mandatory")
-    @Positive(message = "Quantity must be positive")
-    private BigDecimal quantity;
+    @NotNull(message = "Quantity ordered is required")
+    @DecimalMin(value = "0.01", message = "Quantity must be greater than 0")
+    private BigDecimal quantityOrdered;
 
-    @NotNull(message = "Unit purchase price is mandatory")
-    @Positive(message = "Unit purchase price must be positive")
+    @NotNull(message = "Unit purchase price is required")
+    @DecimalMin(value = "0.01", message = "Price must be greater than 0")
     private BigDecimal unitPurchasePrice;
 }
-
