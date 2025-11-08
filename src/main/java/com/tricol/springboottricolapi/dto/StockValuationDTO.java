@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StockValuationDTO {
-
     private BigDecimal totalStockValue;
     private Integer totalProducts;
     private Integer totalBatches;

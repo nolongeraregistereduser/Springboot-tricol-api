@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -21,6 +20,7 @@ public class StockBatchResponseDTO {
     private Long productId;
     private String productName;
     private Double quantityRemaining;
+    private BigDecimal unitPurchasePrice;
     private LocalDate entryDate;
     private Long supplierOrderId;
     private String supplierOrderNumber;

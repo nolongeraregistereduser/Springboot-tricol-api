@@ -29,15 +29,18 @@ public class SupplierOrderService {
     private final SupplierRepository supplierRepository;
     private final ProductRepository productRepository;
     private final SupplierOrderMapper orderMapper;
+    private final StockService stockService;
 
     public SupplierOrderService(SupplierOrderRepository orderRepository,
                                 SupplierRepository supplierRepository,
                                 ProductRepository productRepository,
-                                SupplierOrderMapper orderMapper) {
+                                SupplierOrderMapper orderMapper,
+                                StockService stockService) {
         this.orderRepository = orderRepository;
         this.supplierRepository = supplierRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
+        this.stockService = stockService;
     }
 
     public List<SupplierOrderResponseDTO> getAllOrders() {
@@ -54,7 +57,6 @@ public class SupplierOrderService {
     }
 
     public List<SupplierOrderResponseDTO> getOrdersBySupplierId(Long supplierId) {
-        // Verify supplier exists
         supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + supplierId));
 
@@ -79,11 +81,9 @@ public class SupplierOrderService {
     }
 
     public SupplierOrderResponseDTO createOrder(SupplierOrderRequestDTO requestDTO) {
-        // Verify supplier exists
         Supplier supplier = supplierRepository.findById(requestDTO.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + requestDTO.getSupplierId()));
 
-        // Create order
         SupplierOrder order = SupplierOrder.builder()
                 .orderNumber(generateOrderNumber())
                 .supplier(supplier)
@@ -92,7 +92,6 @@ public class SupplierOrderService {
                 .comments(requestDTO.getNotes())
                 .build();
 
-        // Add order lines
         for (SupplierOrderLineRequestDTO lineDTO : requestDTO.getOrderLines()) {
             Product product = productRepository.findById(lineDTO.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + lineDTO.getProductId()));
@@ -106,7 +105,6 @@ public class SupplierOrderService {
             order.addOrderLine(line);
         }
 
-        // Calculate total
         order.calculateTotalAmount();
 
         SupplierOrder savedOrder = orderRepository.save(order);
@@ -117,22 +115,17 @@ public class SupplierOrderService {
         SupplierOrder order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        // Only allow update if status is EN_ATTENTE
         if (order.getStatus() != OrderStatus.EN_ATTENTE) {
             throw new IllegalStateException("Cannot update order with status: " + order.getStatus());
         }
 
-        // Update supplier if changed
         if (!order.getSupplier().getId().equals(requestDTO.getSupplierId())) {
             Supplier supplier = supplierRepository.findById(requestDTO.getSupplierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + requestDTO.getSupplierId()));
             order.setSupplier(supplier);
         }
 
-        // Update basic fields (keep original order date, only update notes)
         order.setComments(requestDTO.getNotes());
-
-        // Clear and rebuild order lines
         order.getOrderLines().clear();
 
         for (SupplierOrderLineRequestDTO lineDTO : requestDTO.getOrderLines()) {
@@ -158,7 +151,6 @@ public class SupplierOrderService {
         SupplierOrder order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        // Only allow deletion if status is EN_ATTENTE or ANNULEE
         if (order.getStatus() == OrderStatus.LIVREE || order.getStatus() == OrderStatus.VALIDEE) {
             throw new IllegalStateException("Cannot delete order with status: " + order.getStatus());
         }
@@ -170,7 +162,6 @@ public class SupplierOrderService {
         SupplierOrder order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        // Only allow cancellation if not already delivered
         if (order.getStatus() == OrderStatus.LIVREE) {
             throw new IllegalStateException("Cannot cancel a delivered order");
         }
@@ -201,13 +192,14 @@ public class SupplierOrderService {
             throw new IllegalStateException("Only validated orders can be received");
         }
 
-        // TODO: Implement FIFO stock entry logic here
-        // This will be implemented in the Stock Management module
-
         order.setStatus(OrderStatus.LIVREE);
         order.setReceptionDate(LocalDate.now());
 
         SupplierOrder receivedOrder = orderRepository.save(order);
+
+        // Create stock entries using FIFO logic
+        stockService.createStockEntryFromOrder(receivedOrder);
+
         return orderMapper.toResponseDTO(receivedOrder);
     }
 

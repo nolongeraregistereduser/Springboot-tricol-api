@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class StockBatch {
 
     @Id
@@ -36,6 +38,7 @@ public class StockBatch {
 
     @NotNull(message = "Entry date is mandatory")
     @Column(name = "entry_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Builder.Default
     private LocalDateTime entryDate = LocalDateTime.now();
 
     @NotNull(message = "Initial quantity is mandatory")
@@ -58,6 +61,7 @@ public class StockBatch {
     private SupplierOrder supplierOrder;
 
     @OneToMany(mappedBy = "batch", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StockMovement> stockMovements = new ArrayList<>();
 
 }

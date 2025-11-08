@@ -164,3 +164,9 @@ ALTER TABLE delivery_notes MODIFY status VARCHAR(20) DEFAULT 'BROUILLON';
 -- changeset tricol:14
 -- Fix: Update stock_movements to add unit_price column
 ALTER TABLE stock_movements ADD COLUMN IF NOT EXISTS unit_price DECIMAL(12,3);
+
+
+-- changeset tricol:15
+-- Fix: Update stock_movements movement_type constraint to match Java enum (ENTREE/SORTIE)
+ALTER TABLE stock_movements DROP CONSTRAINT IF EXISTS chk_movement_type;
+ALTER TABLE stock_movements ADD CONSTRAINT chk_movement_type CHECK (movement_type IN ('ENTREE','SORTIE'));
