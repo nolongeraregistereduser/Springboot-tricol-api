@@ -3,6 +3,7 @@ package com.tricol.springboottricolapi.service;
 import com.tricol.springboottricolapi.dto.ProductStockDetailDTO;
 import com.tricol.springboottricolapi.dto.Response.StockBatchResponseDTO;
 import com.tricol.springboottricolapi.dto.Response.StockMovementResponseDTO;
+import com.tricol.springboottricolapi.dto.Response.ProductStockDTO;
 import com.tricol.springboottricolapi.dto.StockAlertDTO;
 import com.tricol.springboottricolapi.dto.StockValuationDTO;
 import com.tricol.springboottricolapi.entity.*;
@@ -288,4 +289,23 @@ public class StockService {
                 .notes(movement.getComments())
                 .build();
     }
+
+
+
+    @Transactional(readOnly = true)
+        public List<ProductStockDTO> getGlobalStockOverview() {
+        log.info("Getting global stock overview");
+        return productRepository.findAll()
+                .stream()
+                .map(product -> ProductStockDTO.builder()
+                        .productId(product.getId())
+                        .reference(product.getReference())
+                        .name(product.getName())
+                        .currentStock(product.getCurrentStock())
+                        .reorderPoint(product.getReorderPoint())
+                        .unitOfMeasure(product.getUnitOfMeasure())
+                        .isBelowReorderPoint(product.isBelowReorderPoint())
+                        .build())
+                .collect(Collectors.toList());
+        }
 }
