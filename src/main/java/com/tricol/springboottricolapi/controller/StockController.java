@@ -1,6 +1,7 @@
 package com.tricol.springboottricolapi.controller;
 
 import com.tricol.springboottricolapi.dto.ProductStockDetailDTO;
+import com.tricol.springboottricolapi.dto.Response.ProductStockDTO;
 import com.tricol.springboottricolapi.dto.Response.StockMovementResponseDTO;
 import com.tricol.springboottricolapi.dto.StockAlertDTO;
 import com.tricol.springboottricolapi.dto.StockValuationDTO;
@@ -17,6 +18,12 @@ import java.util.List;
 public class StockController {
 
     private final StockService stockService;
+
+    @GetMapping
+    public ResponseEntity<List<ProductStockDTO>> getGlobalStockOverview() {
+        List<ProductStockDTO> globalStock = stockService.getGlobalStockOverview();
+        return ResponseEntity.ok(globalStock);
+    }
 
     @GetMapping("/produit/{productId}")
     public ResponseEntity<ProductStockDetailDTO> getProductStockDetail(@PathVariable Long productId) {
