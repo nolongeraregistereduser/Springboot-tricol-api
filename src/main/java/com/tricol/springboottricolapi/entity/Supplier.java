@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 @Entity
 @Table(name = "suppliers")
 @Data
@@ -35,7 +34,7 @@ public class Supplier {
     @Column(name = "city", length = 100)
     private String city;
 
-    @Column(name = "ice", length = 50)
+    @Column(name = "ice", unique = true, length = 50)
     private String ice;
 
     @Column(name="contact_person", length = 100)
@@ -44,7 +43,7 @@ public class Supplier {
     @Column(name="email", length =120)
     private String email;
 
-     @Column(name = "phone", length = 50)
+    @Column(name = "phone", length = 50)
     private String phone;
 
     @CreationTimestamp
@@ -58,6 +57,5 @@ public class Supplier {
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SupplierOrder> orders = new ArrayList<>();
-
 
 }

@@ -16,6 +16,6 @@ public interface SupplierMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "orders", ignore = true)
+//    @Mapping(target = "orders", ignore = true)
     void updateEntity(SupplierRequestDTO dto, @MappingTarget Supplier supplier);
 }

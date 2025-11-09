@@ -1,6 +1,7 @@
 --liquibase formatted sql
 
 -- changeset tricol:1
+
 CREATE TABLE suppliers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     raison_sociale VARCHAR(150) NOT NULL,
@@ -123,3 +124,49 @@ CREATE TABLE delivery_note_lines (
     FOREIGN KEY (delivery_note_id) REFERENCES delivery_notes(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+
+-- changeset tricol:10
+-- Fix: Replace category_id with category string field
+ALTER TABLE products DROP FOREIGN KEY products_ibfk_1;
+ALTER TABLE products DROP COLUMN category_id;
+ALTER TABLE products ADD COLUMN category VARCHAR(100) NOT NULL DEFAULT 'General';
+
+
+-- changeset tricol:11
+-- Fix: Update supplier_orders status constraint to match French enum values
+ALTER TABLE supplier_orders DROP CONSTRAINT chk_status;
+ALTER TABLE supplier_orders ADD CONSTRAINT chk_status CHECK (status IN ('EN_ATTENTE','VALIDEE','LIVREE','ANNULEE'));
+ALTER TABLE supplier_orders MODIFY status VARCHAR(20) DEFAULT 'EN_ATTENTE';
+
+
+-- changeset tricol:12
+-- Add missing columns to supplier_orders table
+ALTER TABLE supplier_orders ADD COLUMN IF NOT EXISTS order_number VARCHAR(50) UNIQUE;
+ALTER TABLE supplier_orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE supplier_orders ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+
+-- changeset tricol:13
+-- Fix: Update delivery_notes column names to match entity
+ALTER TABLE delivery_notes CHANGE delivery_date exit_date DATE NOT NULL;
+ALTER TABLE delivery_notes CHANGE receiving_department workshop VARCHAR(100) NOT NULL;
+ALTER TABLE delivery_notes CHANGE delivery_reason exit_reason VARCHAR(20) DEFAULT 'PRODUCTION';
+ALTER TABLE delivery_notes ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE delivery_notes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE delivery_notes DROP CONSTRAINT chk_delivery_reason;
+ALTER TABLE delivery_notes DROP CONSTRAINT chk_delivery_status;
+ALTER TABLE delivery_notes ADD CONSTRAINT chk_exit_reason CHECK (exit_reason IN ('PRODUCTION','MAINTENANCE','AUTRE'));
+ALTER TABLE delivery_notes ADD CONSTRAINT chk_exit_status CHECK (status IN ('BROUILLON','VALIDE','ANNULE'));
+ALTER TABLE delivery_notes MODIFY status VARCHAR(20) DEFAULT 'BROUILLON';
+
+
+-- changeset tricol:14
+-- Fix: Update stock_movements to add unit_price column
+ALTER TABLE stock_movements ADD COLUMN IF NOT EXISTS unit_price DECIMAL(12,3);
+
+
+-- changeset tricol:15
+-- Fix: Update stock_movements movement_type constraint to match Java enum (ENTREE/SORTIE)
+ALTER TABLE stock_movements DROP CONSTRAINT IF EXISTS chk_movement_type;
+ALTER TABLE stock_movements ADD CONSTRAINT chk_movement_type CHECK (movement_type IN ('ENTREE','SORTIE'));

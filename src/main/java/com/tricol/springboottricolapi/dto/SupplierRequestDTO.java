@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class SupplierRequestDTO {
     
     @NotBlank(message = "the social reason is required")
-    @Size(min = 3, max = 150, message = "the social reason must be between 3 and 150 characters")
+    @Size(min = 3, max = 150, message = "the sogcial reason must be between 3 and 150 characters")
     private String raisonSociale;
 
     @Size(min =3 , max = 255, message = "the address must be between 3 and 255 characters")
