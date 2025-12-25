@@ -5,11 +5,18 @@ import com.tricol.springboottricolapi.dto.Response.ProductStockDTO;
 import com.tricol.springboottricolapi.dto.Response.StockMovementResponseDTO;
 import com.tricol.springboottricolapi.dto.StockAlertDTO;
 import com.tricol.springboottricolapi.dto.StockValuationDTO;
+import com.tricol.springboottricolapi.entity.enums.MovementType;
 import com.tricol.springboottricolapi.service.StockService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,8 +39,21 @@ public class StockController {
     }
 
     @GetMapping("/mouvements")
-    public ResponseEntity<List<StockMovementResponseDTO>> getAllMovements() {
-        List<StockMovementResponseDTO> movements = stockService.getAllMovements();
+    public ResponseEntity<Page<StockMovementResponseDTO>> searchMovements(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+            @RequestParam(required = false) Long produitId,
+            @RequestParam(required = false) String reference,
+            @RequestParam(required = false) MovementType type,
+            @RequestParam(required = false) String numeroLot,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("movementDate").descending());
+        
+        Page<StockMovementResponseDTO> movements = stockService.searchMovements(
+                dateDebut, dateFin, produitId, reference, type, numeroLot, pageable);
+        
         return ResponseEntity.ok(movements);
     }
 

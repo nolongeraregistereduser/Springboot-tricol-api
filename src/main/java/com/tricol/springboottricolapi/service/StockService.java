@@ -12,8 +12,11 @@ import com.tricol.springboottricolapi.exception.InsufficientStockException;
 import com.tricol.springboottricolapi.exception.InvalidFifoOperationException;
 import com.tricol.springboottricolapi.exception.ResourceNotFoundException;
 import com.tricol.springboottricolapi.repository.*;
+import com.tricol.springboottricolapi.specification.StockMovementSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -194,6 +197,28 @@ public class StockService {
                 .stream()
                 .map(this::mapToMovementDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Advanced search for stock movements with pagination
+     */
+    @Transactional(readOnly = true)
+    public Page<StockMovementResponseDTO> searchMovements(
+            LocalDate dateDebut,
+            LocalDate dateFin,
+            Long produitId,
+            String reference,
+            MovementType type,
+            String numeroLot,
+            Pageable pageable) {
+        
+        log.info("Searching movements with filters - dateDebut: {}, dateFin: {}, produitId: {}, reference: {}, type: {}, numeroLot: {}", 
+                dateDebut, dateFin, produitId, reference, type, numeroLot);
+
+        return stockMovementRepository
+                .findAll(StockMovementSpecification.withFilters(
+                        dateDebut, dateFin, produitId, reference, type, numeroLot), pageable)
+                .map(this::mapToMovementDTO);
     }
 
     /**
